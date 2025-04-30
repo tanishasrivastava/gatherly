@@ -31,7 +31,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
     setState(() => _isLoading = true);
 
-    const String url = "http://10.0.2.2:8089/api/groups/create"; // ← change if deployed
+    const String url = "http://10.0.2.2:8081/api/groups/create"; // ← change if deployed
 
     final response = await http.post(
       Uri.parse(url),

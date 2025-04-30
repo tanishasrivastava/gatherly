@@ -31,7 +31,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8089/api/groups/join'),
+        Uri.parse('http://10.0.2.2:8081/api/groups/join'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'groupCode': groupCode,
@@ -41,7 +41,7 @@ class _JoinGroupScreenState extends State<JoinGroupScreen> {
 
       if (response.statusCode == 200) {
         final groupResponse = await http.get(
-          Uri.parse('http://10.0.2.2:8089/api/groups/$groupCode'),
+          Uri.parse('http://10.0.2.2:8081/api/groups/$groupCode'),
         );
 
         if (groupResponse.statusCode == 200) {

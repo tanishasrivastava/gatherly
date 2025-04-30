@@ -13,7 +13,7 @@ class LoginScreen extends StatelessWidget {
 
   Future<void> _submitLogin(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      final url = Uri.parse("http://10.0.2.2:8089/api/users/login");
+      final url = Uri.parse("http://10.0.2.2:8081/api/users/login");
 
       try {
         final response = await http.post(

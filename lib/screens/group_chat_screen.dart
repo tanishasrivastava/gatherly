@@ -3,8 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // <-- Add this!
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GroupChatScreen extends StatefulWidget {
   final String groupCode;
@@ -27,15 +26,14 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
   List<dynamic> messages = [];
   TextEditingController messageController = TextEditingController();
   bool isLoading = false;
-  bool showEmojiPicker = false;
   bool isTyping = false;
-  String myName = 'User'; // <-- Load from SharedPreferences later
+  String myName = 'User';
 
   @override
   void initState() {
     super.initState();
     fetchMessages();
-    loadMyName(); // Load username on start
+    loadMyName();
   }
 
   Future<void> loadMyName() async {
@@ -51,7 +49,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     });
 
     final response = await http.get(Uri.parse(
-        'http://10.0.2.2:8089/api/chat/group?groupCode=${widget.groupCode}'));
+        'http://10.0.2.2:8081/api/chat/group?groupCode=${widget.groupCode}'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -60,7 +58,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
       });
 
       await http.post(
-        Uri.parse('http://10.0.2.2:8089/api/chat/mark-seen?groupCode=${widget.groupCode}&userId=${widget.myId}'),
+        Uri.parse('http://10.0.2.2:8081/api/chat/mark-seen?groupCode=${widget.groupCode}&userId=${widget.myId}'),
       );
     } else {
       setState(() {
@@ -74,12 +72,12 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     if ((text == null || text.isEmpty) && imageUrl == null) return;
 
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8089/api/chat/send'),
+      Uri.parse('http://10.0.2.2:8081/api/chat/send'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'groupCode': widget.groupCode,
         'senderId': widget.myId,
-        'senderName': myName, // <-- Use loaded username
+        'senderName': myName,
         'receiverId': null,
         'message': text ?? '',
         'imageUrl': imageUrl,
@@ -102,7 +100,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
     if (pickedFile != null) {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://10.0.2.2:8089/api/upload/image'),
+        Uri.parse('http://10.0.2.2:8081/api/upload/image'),
       );
       request.files.add(
           await http.MultipartFile.fromPath('image', pickedFile.path));
@@ -140,7 +138,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
 
     if (confirm) {
       final response = await http.delete(
-        Uri.parse('http://10.0.2.2:8089/api/chat/delete-all?groupCode=${widget.groupCode}'),
+        Uri.parse('http://10.0.2.2:8081/api/chat/delete-all?groupCode=${widget.groupCode}'),
       );
 
       if (response.statusCode == 200) {
@@ -174,7 +172,7 @@ class _GroupChatScreenState extends State<GroupChatScreen> {
 
     if (confirm) {
       final response = await http.delete(
-        Uri.parse('http://10.0.2.2:8089/api/chat/delete/$messageId'),
+        Uri.parse('http://10.0.2.2:8081/api/chat/delete/$messageId'),
       );
 
       if (response.statusCode == 200) {

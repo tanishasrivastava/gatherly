@@ -14,7 +14,7 @@ class SignupScreen extends StatelessWidget {
 
   Future<void> _submitSignup(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      final url = Uri.parse("http://10.0.2.2:8089/api/users/signup");
+      final url = Uri.parse("http://10.0.2.2:8081/api/users/signup");
 
       final response = await http.post(
         url,

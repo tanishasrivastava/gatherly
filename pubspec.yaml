@@ -19,14 +19,16 @@ dependencies:
   path_provider: ^2.1.1
   google_fonts: ^6.1.0
   shared_preferences: ^2.0.15
-  emoji_picker_flutter: ^1.1.1
+  splitwise_api: ^2.0.3
+
+
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.1
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.9.3
 
 flutter_icons:
   android: true
