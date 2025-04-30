@@ -3,7 +3,9 @@ import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/create_event.dart';
-// You can import profile_screen.dart, add_friends_screen.dart, etc. here if needed
+import 'screens/create_group_screen.dart';
+import 'screens/JoinGroupScreen.dart';
+import 'screens/group_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,14 +26,23 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/login',
       routes: {
+        '/createGroup': (context) => const CreateGroupScreen(),
         '/login': (context) => LoginScreen(),
         '/signup': (context) => SignupScreen(),
         '/home': (context) => const HomeScreen(),
         '/create': (context) => const CreateEventScreen(),
-        // You can add more routes below as you build:
-        // '/profile': (context) => const ProfileScreen(),
-        // '/add-friends': (context) => const AddFriendsScreen(),
-        // '/about': (context) => const AboutScreen(),
+        '/joinGroup': (context) => JoinGroupScreen(),
+
+        '/groupScreen': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return GroupScreen(
+            groupData: args['groupData'],
+            myId: args['myId'],
+            myName: args['myName'],
+          );
+        },
+
+
       },
     );
   }

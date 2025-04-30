@@ -1,18 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  void _submitLogin(BuildContext context) {
+  Future<void> _submitLogin(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      final url = Uri.parse("http://10.0.2.2:8089/api/users/login");
+
+      try {
+        final response = await http.post(
+          url,
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({
+            "phone": _phoneController.text.trim(),
+            "password": _passwordController.text,
+          }),
+        );
+
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          final userName = data['name'];
+
+          // Save login state and user data
+          final prefs = await SharedPreferences.getInstance();
+          prefs.setBool('isLoggedIn', true);
+          prefs.setString('userName', userName);
+
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
+          );
+        } else if (response.statusCode == 401) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Invalid phone or password"), backgroundColor: Colors.red),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Server error: ${response.statusCode}"), backgroundColor: Colors.red),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Network error: ${e.toString()}"), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -28,34 +66,22 @@ class LoginScreen extends StatelessWidget {
               key: _formKey,
               child: Column(
                 children: [
-                  const Text(
-                    "Welcome Back 👋",
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
+                  const Text("Welcome Back 👋", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
-                  const Text(
-                    "Login to continue planning with Gatherly",
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
-                  ),
+                  const Text("Login to continue planning with Gatherly", style: TextStyle(fontSize: 16, color: Colors.black54)),
                   const SizedBox(height: 32),
                   TextFormField(
                     controller: _phoneController,
                     keyboardType: TextInputType.phone,
-                    decoration: _inputDecoration("Phone Number", Icons.phone),
-                    validator: (value) =>
-                    value!.isEmpty ? "Enter phone number" : null,
+                    decoration: _inputDecoration("Phone", Icons.phone),
+                    validator: (val) => val!.isEmpty ? "Enter phone" : null,
                   ),
                   const SizedBox(height: 18),
                   TextFormField(
                     controller: _passwordController,
                     obscureText: true,
                     decoration: _inputDecoration("Password", Icons.lock),
-                    validator: (value) =>
-                    value!.isEmpty ? "Enter password" : null,
+                    validator: (val) => val!.isEmpty ? "Enter password" : null,
                   ),
                   const SizedBox(height: 28),
                   ElevatedButton(
@@ -65,11 +91,9 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/signup');
-                    },
+                    onPressed: () => Navigator.pushNamed(context, '/signup'),
                     child: const Text("Don't have an account? Sign up"),
-                  )
+                  ),
                 ],
               ),
             ),

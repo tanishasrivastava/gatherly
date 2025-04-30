@@ -6,6 +6,7 @@ import 'event_details.dart';
 import 'profile_screen.dart';
 import 'add_friends_screen.dart';
 import 'about_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,9 +17,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  // Simulated login state — replace with your actual auth logic
   bool isLoggedIn = false;
+  String userName = "User";  // Default username
 
   final List<Event> _events = [
     Event(
@@ -44,6 +44,20 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     ),
   ];
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+      userName = prefs.getString('userName') ?? "User";
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
 
   void _deleteEvent(String eventId) {
     setState(() {
@@ -100,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    isLoggedIn ? 'Hey, Tanisha!' : 'Welcome!',
+                    isLoggedIn ? 'Hey, $userName!' : 'Welcome!',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -148,6 +162,9 @@ class _HomeScreenState extends State<HomeScreen> {
               onChanged: (value) {
                 setState(() {
                   isLoggedIn = value;
+                  if (!isLoggedIn) {
+                    _logout();
+                  }
                 });
               },
             ),
@@ -199,44 +216,105 @@ class _HomeScreenState extends State<HomeScreen> {
         label: const Text('Create Event'),
         backgroundColor: Colors.teal,
       ),
-      body: _events.isEmpty
-          ? const Center(
-        child: Text(
-          'No events yet. Tap "+" to create one!',
-          style: TextStyle(fontSize: 16, color: Colors.black54),
-        ),
-      )
-          : ListView.builder(
-        itemCount: _events.length,
-        padding: const EdgeInsets.only(bottom: 100, top: 8),
-        itemBuilder: (context, index) {
-          final event = _events[index];
-          return EventCard(
-            event: event,
-            onTap: () async {
-              if (!isLoggedIn) {
-                _showLoginRequiredDialog();
-                return;
-              }
-
-              final updatedEvent = await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EventDetailsScreen(
-                    event: event,
-                    onDelete: _deleteEvent,
-                    onUpdate: _updateEvent,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    if (!isLoggedIn) {
+                      _showLoginRequiredDialog();
+                      return;
+                    }
+                    Navigator.pushNamed(context, '/createGroup');
+                  },
+                  icon: const Icon(Icons.group, color: Colors.white),
+                  label: const Text('Create Group'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    textStyle: const TextStyle(fontSize: 16),
                   ),
                 ),
-              );
+                ElevatedButton.icon(
+                  onPressed: () {
+                    if (!isLoggedIn) {
+                      _showLoginRequiredDialog();
+                      return;
+                    }
+                    Navigator.pushNamed(context, '/joinGroup');
+                  },
+                  icon: const Icon(Icons.input, color: Colors.white),
+                  label: const Text('Join Group'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    textStyle: const TextStyle(fontSize: 16),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: _events.isEmpty
+                ? const Center(
+              child: Text(
+                'No events yet. Tap "+" to create one!',
+                style: TextStyle(fontSize: 16, color: Colors.black54),
+              ),
+            )
+                : ListView.builder(
+              itemCount: _events.length,
+              padding: const EdgeInsets.only(bottom: 100, top: 8),
+              itemBuilder: (context, index) {
+                final event = _events[index];
+                return EventCard(
+                  event: event,
+                  onTap: () async {
+                    if (!isLoggedIn) {
+                      _showLoginRequiredDialog();
+                      return;
+                    }
 
-              if (updatedEvent != null && updatedEvent is Event) {
-                _updateEvent(updatedEvent);
-              }
-            },
-          );
-        },
+                    final updatedEvent = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EventDetailsScreen(
+                          event: event,
+                          onDelete: _deleteEvent,
+                          onUpdate: _updateEvent,
+                        ),
+                      ),
+                    );
+
+                    if (updatedEvent != null && updatedEvent is Event) {
+                      _updateEvent(updatedEvent);
+                    }
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  void _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isLoggedIn', false);
+    prefs.remove('userName');
+    setState(() {
+      userName = "User";
+    });
   }
 }
