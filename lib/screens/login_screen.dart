@@ -28,31 +28,43 @@ class LoginScreen extends StatelessWidget {
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           final userName = data['name'];
+          final userPhone = _phoneController.text.trim();
 
           // Save login state and user data
           final prefs = await SharedPreferences.getInstance();
           prefs.setBool('isLoggedIn', true);
           prefs.setString('userName', userName);
+          prefs.setString('userPhone', userPhone); // 👈 Save phone for profile fetch
 
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (_) => const HomeScreen()),
           );
         } else if (response.statusCode == 401) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Invalid phone or password"), backgroundColor: Colors.red),
+            const SnackBar(
+              content: Text("Invalid phone or password"),
+              backgroundColor: Colors.red,
+            ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Server error: ${response.statusCode}"), backgroundColor: Colors.red),
+            SnackBar(
+              content: Text("Server error: ${response.statusCode}"),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Network error: ${e.toString()}"), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text("Network error: ${e.toString()}"),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

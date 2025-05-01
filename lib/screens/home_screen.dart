@@ -254,6 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: const Text('Join Group'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white, // 👈 sets the text and icon color
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -261,6 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     textStyle: const TextStyle(fontSize: 16),
                   ),
                 ),
+
               ],
             ),
           ),
