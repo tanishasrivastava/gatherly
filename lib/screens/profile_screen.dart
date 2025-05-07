@@ -39,7 +39,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _fetchUserProfile(savedPhone);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("No user logged in"), backgroundColor: Colors.red),
+        const SnackBar(content: Text("No user is logged in"), backgroundColor: Colors.red),
       );
       setState(() {
         _isLoading = false;
